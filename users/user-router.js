@@ -1,12 +1,13 @@
 const express = require('express');
 
 const db = require('../data/db-config.js');
+const userDB = require('./user-model');
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const users = await db('users');
+    const users = await userDB.find();
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: 'Failed to get users' });
@@ -17,7 +18,7 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [ user ] = await db('users').where({ id });
+    const [ user ] = await userDB.findById(id);
 
     if (user) {
       res.json(user);
@@ -70,6 +71,19 @@ router.delete('/:id', async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete user' });
+  }
+});
+
+router.get('/:id/posts', async (req, res) => {
+  const {id} = req.params;
+
+  try {
+
+    const posts = await userDB.findPosts(id);
+
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to get posts' });
   }
 });
 
